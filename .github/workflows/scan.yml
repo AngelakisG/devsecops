@@ -1,0 +1,21 @@
+name: Scan Image with Docker Scout
+
+on:
+  workflow_run:
+    workflows: ["Publish Docker Image"]
+    types:
+      - completed
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Docker Scout Scan
+        uses: docker/scout-action@v1
+        with:
+          command: quickview,cves
+          image: ghcr.io/${{ github.repository }}:latest
